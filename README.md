@@ -1,4 +1,4 @@
-# terraform-tfc-workspace
+# terraform-tfe-workspace
 
 Reusable Terraform module for creating VCS-driven Terraform Cloud workspaces with optional OIDC dynamic credentials.
 
@@ -8,7 +8,9 @@ Reusable Terraform module for creating VCS-driven Terraform Cloud workspaces wit
 
 ```hcl
 module "workspace_myapp" {
-  source       = "github.com/pomo-studio/terraform-tfc-workspace?ref=v1.0.0"
+  source  = "pomo-studio/workspace/tfe"
+  version = "~> 1.0"
+
   name         = "myapp"
   organization = "MyOrg"
   vcs_repo     = "pomo-studio/myapp"
@@ -20,7 +22,9 @@ module "workspace_myapp" {
 
 ```hcl
 module "workspace_myapp" {
-  source       = "github.com/pomo-studio/terraform-tfc-workspace?ref=v1.0.0"
+  source  = "pomo-studio/workspace/tfe"
+  version = "~> 1.0"
+
   name         = "myapp"
   organization = "MyOrg"
   description  = "My application infrastructure"

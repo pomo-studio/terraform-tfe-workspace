@@ -1,5 +1,5 @@
 # =============================================================================
-# terraform-tfc-workspace — Reusable TFC workspace with optional OIDC
+# terraform-tfe-workspace — Reusable TFC workspace with optional OIDC
 # =============================================================================
 
 terraform {
