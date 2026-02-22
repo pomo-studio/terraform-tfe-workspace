@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-02-22
+
+### Changed
+- Added value-prop bullets and Registry badge to README
+- Added `## What it creates` and `## Examples` sections to README
+- Updated usage examples to `version = "~> 1.1"`
+- Standardized variable table header to "Name"
+- Standardized `## Requirements` table format; added `## License`
+
 ## [1.1.0] - 2026-02-21
 
 ### Added
