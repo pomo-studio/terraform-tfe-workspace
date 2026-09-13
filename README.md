@@ -7,9 +7,9 @@
 
 Reusable Terraform module for creating VCS-driven Terraform Cloud workspaces with optional OIDC dynamic credentials.
 
-- VCS-driven workspace with GitHub App integration — push to main triggers a plan automatically
-- OIDC dynamic credentials wired in one variable (`role_arn`) — no manual TFC variable set setup
-- File trigger patterns auto-derived from `working_directory` — no boilerplate path config
+- VCS-driven workspace with GitHub App integration: push to main triggers a plan automatically
+- OIDC dynamic credentials wired in one variable (`role_arn`): no manual TFC variable set setup
+- File trigger patterns auto-derived from `working_directory`: no boilerplate path config
 - Workspace-scoped variables for secrets that don't belong in a shared variable set
 - Pairs with `pomo-studio/oidc/aws` for a complete zero-static-credentials TFC setup
 
@@ -80,6 +80,36 @@ module "workspace_myapp" {
 
 `workspace_variables` creates `tfe_variable` resources scoped directly to the workspace (not via a variable set). Sensitive values are marked hidden in the TFC UI and are never output.
 
+## What it creates
+
+Per module call:
+
+- 1 `tfe_workspace`: VCS-driven, file-trigger enabled
+
+Conditional:
+
+- `tfe_variable_set` + 2 `tfe_variable` resources for OIDC credentials (`role_arn` set)
+- N `tfe_variable` resources, one per entry in `workspace_variables`
+
+## Design decisions
+
+- **`trigger_patterns` auto-derives from `working_directory`**: when null, computes `["<dir>/**/*.tf", "<dir>/**/*.tfvars"]`. Pass explicitly to override.
+- **`role_arn` as nullable toggle**: one variable serves as both feature flag and value. No separate `enable_oidc` boolean needed.
+- **`lifecycle { ignore_changes = [tag_names] }`**: prevents TFC tag binding drift from causing plan changes.
+- **Core workspace stays inline**: the workspace that manages OIDC infrastructure itself can't use this module (chicken/egg). This module is for site workspaces.
+- **`workspace_variables` are workspace-scoped, not variable-set-scoped**: variables created via this input are attached directly to the workspace via `tfe_variable.workspace_id`, not to a shared variable set. Use this for workspace-specific values; use variable sets for values shared across multiple workspaces.
+- **Sensitive values are never output**: `workspace_variables` values are not exposed in module outputs regardless of the `sensitive` flag.
+
+## Examples
+
+- [`examples/basic`](examples/basic/): minimal VCS-driven workspace, no OIDC
+- [`examples/complete`](examples/complete/): OIDC dynamic credentials + workspace variables
+
+## Reference
+
+<details>
+<summary>Reference</summary>
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -142,28 +172,7 @@ No modules.
 | <a name="output_workspace_url"></a> [workspace\_url](#output\_workspace\_url) | Direct URL to the TFC workspace |
 <!-- END_TF_DOCS -->
 
-## What it creates
-
-Per module call:
-- 1 `tfe_workspace` — VCS-driven, file-trigger enabled
-
-Conditional:
-- `tfe_variable_set` + 2 `tfe_variable` resources for OIDC credentials (`role_arn` set)
-- N `tfe_variable` resources, one per entry in `workspace_variables`
-
-## Design decisions
-
-- **`trigger_patterns` auto-derives from `working_directory`** — when null, computes `["<dir>/**/*.tf", "<dir>/**/*.tfvars"]`. Pass explicitly to override.
-- **`role_arn` as nullable toggle** — one variable serves as both feature flag and value. No separate `enable_oidc` boolean needed.
-- **`lifecycle { ignore_changes = [tag_names] }`** — prevents TFC tag binding drift from causing plan changes.
-- **Core workspace stays inline** — the workspace that manages OIDC infrastructure itself can't use this module (chicken/egg). This module is for site workspaces.
-- **`workspace_variables` are workspace-scoped, not variable-set-scoped** — variables created via this input are attached directly to the workspace via `tfe_variable.workspace_id`, not to a shared variable set. Use this for workspace-specific values; use variable sets for values shared across multiple workspaces.
-- **Sensitive values are never output** — `workspace_variables` values are not exposed in module outputs regardless of the `sensitive` flag.
-
-## Examples
-
-- [`examples/basic`](examples/basic/) — minimal VCS-driven workspace, no OIDC
-- [`examples/complete`](examples/complete/) — OIDC dynamic credentials + workspace variables
+</details>
 
 ## License
 
